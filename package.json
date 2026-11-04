@@ -1,0 +1,14 @@
+{
+  "name": "social-media-poster",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Posts a Markdown queue to YouTube, Facebook, Instagram and LinkedIn through their APIs",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "youtube:check": "node src/youtube/check.ts"
+  }
+}

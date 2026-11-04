@@ -1,0 +1,28 @@
+# Read-only check that the stored YouTube token belongs to the expected channel.
+# Run by hand from the Actions tab. It posts nothing.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them.
+name: YouTube check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm run youtube:check
+        env:
+          YOUTUBE_CHANNEL_ID: UCM5CkEQSp4ZGycOq7d_MScw
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
