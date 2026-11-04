@@ -1,0 +1,23 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Secrets: platform tokens live in Actions secrets, never in the tree
+.env
+.env.*
+!.env.example
+
+# Media never goes in git: it stays in git history for good, even after a revert
+*.mp4
+*.mov
+*.webm
+*.mkv
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+
+# Local state
+.DS_Store
+*.log
