@@ -17,6 +17,10 @@ Posts scheduled content from a Markdown queue to **YouTube, Facebook, Instagram 
 - **No secrets in the tree or in logs.** Tokens are GitHub Actions secrets. No workflow runs code from a fork with secrets (no `pull_request_target`), and no raw API request or response carrying a token is logged.
 - **Check each platform's current API docs before building against it.** APIs, scopes and limits change.
 
+## Setup
+
+- [YouTube](docs/setup/youtube.md): Google Cloud project, OAuth client, refresh token, and the check that proves them.
+
 ## Licence
 
 [MIT](LICENSE)
