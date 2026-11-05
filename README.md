@@ -20,6 +20,7 @@ Posts scheduled content from a Markdown queue to **YouTube, Facebook, Instagram 
 ## Setup
 
 - [YouTube](docs/setup/youtube.md): Google Cloud project, OAuth client, refresh token, and the check that proves them.
+- [Facebook and Instagram](docs/setup/meta.md): Meta developer app, published, and a Page token that never expires.
 
 ## Licence
 
