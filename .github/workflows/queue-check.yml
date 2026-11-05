@@ -1,0 +1,29 @@
+# Read-only check that the poster can read its queue from sole-accounts and
+# find each video in Drive. Run by hand from the Actions tab. It posts nothing.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them. Actions are
+# pinned to commit SHAs, so a moved tag can't run new code with them.
+name: Queue check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: npm run queue:check
+        env:
+          GDRIVE_FOLDER_ID: 1euivocgVvZjFOm0IhxDpd1UwsDVaSwkO
+          GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
+          QUEUE_REPO_TOKEN: ${{ secrets.QUEUE_REPO_TOKEN }}

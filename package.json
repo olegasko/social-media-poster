@@ -11,6 +11,10 @@
   "scripts": {
     "youtube:check": "node src/youtube/check.ts",
     "meta:check": "node src/meta/check.ts",
-    "drive:check": "node src/drive/check.ts"
+    "drive:check": "node src/drive/check.ts",
+    "queue:check": "node src/queue/check.ts"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
   }
 }
