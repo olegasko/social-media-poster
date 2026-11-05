@@ -90,6 +90,7 @@ The **Meta check** workflow (Actions tab, run by hand) proves the token reaches 
 | `the page is linked to Instagram nothing` | The Instagram account was unlinked from the page | Relink it in Meta Business Suite |
 | The publishing-limit call fails with a permission error | `instagram_content_publish` wasn't granted | Repeat step 5 with all six permissions |
 | Posts publish but nobody else sees them | The app slipped back to Development mode | Publish it again (step 4) |
+| `OAuthException 190` "…must be granted before impersonating a user's page", the Explorer says "no apps available", and developers.facebook.com opens on `r/user/error` ("Please wait") | Meta has held the **developer account** for a check (5 November 2026, hours after the app was set up). Its apps and tokens are suspended, not deleted | Complete whatever confirmation Meta asks for and wait. **Don't create a new developer account or app**. When access returns, run the Meta check before anything else: on 5 November the same token worked again and step 5 wasn't needed |
 
 **To revoke access:** Facebook → Settings → **Business integrations**, remove the app. Every token it issued stops working. Then repeat step 5.
 
