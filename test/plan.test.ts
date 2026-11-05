@@ -24,11 +24,11 @@ const at = (iso: string) => new Date(iso);
 const run = (posts: Post[], files: DriveFile[], now: string) => plan({ timezone: 'Europe/London', posts }, files, at(now));
 const step = (posts: Post[], files: DriveFile[], now: string, what: string) => run(posts, files, now)[0]!.steps.find((s) => s.what === what)!;
 
-test('a link post is scheduled up to 75 days ahead, less the hour', () => {
-  assert.match(step([link], [], '2026-11-05T12:00:00Z', 'facebook link').text, /^would schedule a link post for Sun 6 Dec 2026, 19:00 UK/);
-  const far = step([link], [], '2026-09-22T19:00:00Z', 'facebook link');
-  assert.equal(far.text, 'window opens Tue 22 Sep 2026, 21:00 UK');
-  assert.equal(far.problem, undefined);
+test('a link post is scheduled up to 30 days ahead, less the hour', () => {
+  const early = step([link], [], '2026-11-06T19:59:00Z', 'facebook link');
+  assert.equal(early.text, 'window opens Fri 6 Nov 2026, 20:00 UK');
+  assert.equal(early.problem, undefined);
+  assert.match(step([link], [], '2026-11-06T20:01:00Z', 'facebook link').text, /^would schedule a link post for Sun 6 Dec 2026, 19:00 UK/);
 });
 
 test('a Reel waits for its 29-day window, then is scheduled', () => {
@@ -75,7 +75,7 @@ test('an Instagram caption over the limits is a problem', () => {
 
 test('a link post must end with its link', () => {
   const bare = { ...link, facebook: { type: 'link' as const, caption: 'No link here.' } };
-  assert.equal(step([bare], [], '2026-11-05T12:00:00Z', 'facebook link').problem, true);
+  assert.equal(step([bare], [], '2026-11-20T12:00:00Z', 'facebook link').problem, true);
 });
 
 test('a UK time that does not exist is a problem for that post alone', () => {

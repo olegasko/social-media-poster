@@ -2,11 +2,11 @@
 
 Posts scheduled content from a Markdown queue to **YouTube, Facebook, Instagram and LinkedIn** through each platform's API.
 
-**Status: dry run.** The poster reads its queue and its videos and prints what it would do with each post; it posts nothing yet. The plan and the platform research are tracked in a private repository.
+**Status: Facebook link posts.** The poster schedules the queue's Facebook link posts; Reels and Instagram are a dry run so far. The plan and the platform research are tracked in a private repository.
 
 ## Running it
 
-All workflows are run by hand from the Actions tab and post nothing.
+All workflows are run by hand from the Actions tab. Only **Facebook link posts**, with mode **schedule**, writes anything.
 
 | Workflow | What it proves |
 |---|---|
@@ -15,6 +15,7 @@ All workflows are run by hand from the Actions tab and post nothing.
 | Drive check | The service account can read the video folder |
 | Queue check | The queue can be read, and which videos are in Drive |
 | **Dry run** | For every post: whether its window is open, whether its video suits the platforms, and what would be sent. **as_of** asks what it would do at another time |
+| **Facebook link posts** | Schedules link posts whose 30-day window is open, at most **max_posts** a run, each read back from Facebook. A post the Page already holds for that minute, or with that link, is skipped: **Facebook is the record** |
 
 `npm test` runs the planner's tests locally; they need no secrets.
 

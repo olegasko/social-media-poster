@@ -3,7 +3,8 @@
 // so the decisions can be tested without a network.
 //
 // Limits are Meta's, read on 5 November 2026:
-// - Page feed: scheduled_publish_time 10 minutes to 75 days ahead.
+// - Page posts: 10 minutes to 30 days ahead, per the Pages API posting guide.
+//   The Page feed reference says 75 days; the stricter is used.
 // - Facebook Reels: 10 minutes to 29 days ahead; 3–90 seconds; 9:16; at least
 //   540 x 960; MP4 recommended.
 // - Instagram Reels: no API scheduling; 3 seconds to 15 minutes; at most
@@ -20,25 +21,37 @@ const DAY = 24 * 60 * MINUTE;
 /** Facebook refuses a scheduled time closer than this. */
 export const FACEBOOK_MIN_AHEAD = 10 * MINUTE;
 /** How far ahead Facebook takes each kind of post, less an hour so a run at the edge isn't refused. */
-export const FACEBOOK_MAX_AHEAD = { link: 75 * DAY - 60 * MINUTE, reel: 29 * DAY - 60 * MINUTE };
+export const FACEBOOK_MAX_AHEAD = { link: 30 * DAY - 60 * MINUTE, reel: 29 * DAY - 60 * MINUTE };
 /** Instagram is posted at the time. Later than this, the post is reported as missed rather than posted. */
 export const INSTAGRAM_LATE_LIMIT = 60 * MINUTE;
 
 export type Step = { what: string; text: string; problem?: true };
 export type PostPlan = { id: string; label: string; steps: Step[] };
 
+/** Whether Facebook will take a post for this time now, and if not yet, from when. */
+export function facebookWindow(type: 'link' | 'reel', when: Date, now: Date): 'too-late' | 'open' | Date {
+  const ahead = when.getTime() - now.getTime();
+  if (ahead < FACEBOOK_MIN_AHEAD) return 'too-late';
+  const max = FACEBOOK_MAX_AHEAD[type];
+  return ahead > max ? new Date(when.getTime() - max) : 'open';
+}
+
+/** A link post's caption ends with the link on its own line; that line is the post's link. */
+export function linkOf(caption: string): string | null {
+  const last = caption.trimEnd().split('\n').at(-1) ?? '';
+  return /^https:\/\/\S+$/.test(last) ? last : null;
+}
+
 function facebookStep(p: Post, when: Date, now: Date): Step & { now?: true } {
   const entry = p.facebook!;
-  const ahead = when.getTime() - now.getTime();
   const what = `facebook ${entry.type}`;
-  if (ahead < FACEBOOK_MIN_AHEAD) {
+  const window = facebookWindow(entry.type, when, now);
+  if (window === 'too-late') {
     return { what, text: 'too late to schedule: it was due within 10 minutes or has passed', problem: true };
   }
-  const max = FACEBOOK_MAX_AHEAD[entry.type];
-  if (ahead > max) return { what, text: `window opens ${ukLabel(new Date(when.getTime() - max))}` };
+  if (window !== 'open') return { what, text: `window opens ${ukLabel(window)}` };
   if (entry.type === 'link') {
-    const last = entry.caption.trimEnd().split('\n').at(-1) ?? '';
-    if (!/^https:\/\/\S+$/.test(last)) return { what, text: 'the caption does not end with the link it posts', problem: true };
+    if (!linkOf(entry.caption)) return { what, text: 'the caption does not end with the link it posts', problem: true };
     return { what, text: `would schedule a link post for ${ukLabel(when)} (message ${entry.caption.trimEnd().length} characters, link on its last line)`, now: true };
   }
   return { what, text: `would upload the video and schedule the Reel for ${ukLabel(when)} (description ${entry.caption.trimEnd().length} characters)`, now: true };

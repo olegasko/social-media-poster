@@ -1,0 +1,49 @@
+# Schedules the queue's Facebook link posts whose 30-day window is open.
+# Run by hand from the Actions tab. "dry-run" (the default) only reads; only
+# "schedule" writes to the Page, at most max_posts posts a run.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them. Actions are
+# pinned to commit SHAs, so a moved tag can't run new code with them. One run
+# at a time: two at once could each see a post as not yet scheduled.
+name: Facebook link posts
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run reads only; schedule writes to the Page'
+        type: choice
+        options: [dry-run, schedule]
+        default: dry-run
+      max_posts:
+        description: 'At most this many posts scheduled in one run (1 to 10)'
+        required: false
+        default: '1'
+
+concurrency:
+  group: facebook-links
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: npm test
+      - run: npm run facebook:links
+        env:
+          # Passed through the environment, never into the script text.
+          MODE: ${{ inputs.mode }}
+          MAX_POSTS: ${{ inputs.max_posts }}
+          META_PAGE_ID: '1415216855004334'
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          QUEUE_REPO_TOKEN: ${{ secrets.QUEUE_REPO_TOKEN }}
