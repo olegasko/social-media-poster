@@ -2,13 +2,20 @@
 
 import { driveToken } from './auth.ts';
 
-export type DriveFile = { id: string; name: string; mimeType: string; size?: string };
+export type DriveFile = {
+  id: string;
+  name: string;
+  mimeType: string;
+  size?: string;
+  /** Filled once Drive has processed a video; durationMillis is a string. */
+  videoMediaMetadata?: { width?: number; height?: number; durationMillis?: string };
+};
 
 export async function listDrive(q: string, token?: string): Promise<DriveFile[]> {
   const bearer = token ?? (await driveToken());
   const url = new URL('https://www.googleapis.com/drive/v3/files');
   url.searchParams.set('q', q);
-  url.searchParams.set('fields', 'files(id,name,mimeType,size)');
+  url.searchParams.set('fields', 'files(id,name,mimeType,size,videoMediaMetadata)');
   url.searchParams.set('pageSize', '200');
   url.searchParams.set('orderBy', 'name');
   const response = await fetch(url, { headers: { Authorization: `Bearer ${bearer}` } });

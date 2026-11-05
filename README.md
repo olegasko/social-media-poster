@@ -2,7 +2,21 @@
 
 Posts scheduled content from a Markdown queue to **YouTube, Facebook, Instagram and LinkedIn** through each platform's API.
 
-**Status: not built yet.** The plan and the platform research are tracked in a private repository; this repository holds the code once it is written.
+**Status: dry run.** The poster reads its queue and its videos and prints what it would do with each post; it posts nothing yet. The plan and the platform research are tracked in a private repository.
+
+## Running it
+
+All workflows are run by hand from the Actions tab and post nothing.
+
+| Workflow | What it proves |
+|---|---|
+| YouTube check | The refresh token belongs to the expected channel |
+| Meta check | The Page token reaches the expected page and Instagram account |
+| Drive check | The service account can read the video folder |
+| Queue check | The queue can be read, and which videos are in Drive |
+| **Dry run** | For every post: whether its window is open, whether its video suits the platforms, and what would be sent. **as_of** asks what it would do at another time |
+
+`npm test` runs the planner's tests locally; they need no secrets.
 
 ## How it will work
 

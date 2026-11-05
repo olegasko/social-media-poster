@@ -1,0 +1,37 @@
+# Read-only: prints what the poster would do now with each post in the queue.
+# Run by hand from the Actions tab. It posts nothing and calls no Meta API.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them. Actions are
+# pinned to commit SHAs, so a moved tag can't run new code with them.
+name: Dry run
+
+on:
+  workflow_dispatch:
+    inputs:
+      as_of:
+        description: 'Pretend it is this time (ISO, e.g. 2026-11-08T21:00Z). Empty means now.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: npm test
+      - run: npm run dry-run
+        env:
+          # Passed through the environment, never into the script text.
+          DRY_RUN_NOW: ${{ inputs.as_of }}
+          GDRIVE_FOLDER_ID: 1euivocgVvZjFOm0IhxDpd1UwsDVaSwkO
+          GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
+          QUEUE_REPO_TOKEN: ${{ secrets.QUEUE_REPO_TOKEN }}
