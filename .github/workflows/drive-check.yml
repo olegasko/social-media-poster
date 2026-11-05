@@ -22,6 +22,6 @@ jobs:
           node-version-file: .nvmrc
       - run: npm run drive:check
         env:
-          # Empty until the first run prints the folder's ID.
-          GDRIVE_FOLDER_ID: ''
+          # "Tuppin social", shared with the service account as Viewer.
+          GDRIVE_FOLDER_ID: 1euivocgVvZjFOm0IhxDpd1UwsDVaSwkO
           GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
