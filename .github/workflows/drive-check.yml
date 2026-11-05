@@ -1,0 +1,27 @@
+# Read-only check that the Drive service account can read the media folder.
+# Run by hand from the Actions tab. It downloads nothing.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them.
+name: Drive check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm run drive:check
+        env:
+          # Empty until the first run prints the folder's ID.
+          GDRIVE_FOLDER_ID: ''
+          GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
