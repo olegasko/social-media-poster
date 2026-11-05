@@ -1,0 +1,27 @@
+# Read-only check that the stored Page token reaches the expected Facebook page
+# and Instagram account. Run by hand from the Actions tab. It posts nothing.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them.
+name: Meta check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm run meta:check
+        env:
+          META_PAGE_ID: '1415216855004334'
+          INSTAGRAM_ACCOUNT_ID: '17841460482864126'
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}

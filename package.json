@@ -9,6 +9,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "youtube:check": "node src/youtube/check.ts"
+    "youtube:check": "node src/youtube/check.ts",
+    "meta:check": "node src/meta/check.ts"
   }
 }
