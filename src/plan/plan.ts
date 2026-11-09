@@ -7,6 +7,11 @@
 //   The Page feed reference says 75 days; the stricter is used.
 // - Facebook Reels: 10 minutes to 29 days ahead; 3–90 seconds; 9:16; at least
 //   540 x 960; MP4 recommended.
+// BUT FACEBOOK REFUSES LESS THAN ITS GUIDE SAYS. Measured on the first real
+// run: a link post 29 days 22.6 hours ahead was refused ("(#100) The specified
+// scheduled publish time is invalid", 6 November 2026), and 27 days 6 hours
+// ahead was accepted (9 November). So both windows open at 27 days, the
+// furthest seen to work, rather than at a limit that has been seen to fail.
 // - Instagram Reels: no API scheduling; 3 seconds to 15 minutes; at most
 //   1920 pixels wide; at most 300 MB; caption at most 2200 characters,
 //   30 hashtags and 20 @ tags. H.264 or HEVC, which Drive can't tell us.
@@ -20,8 +25,8 @@ const DAY = 24 * 60 * MINUTE;
 
 /** Facebook refuses a scheduled time closer than this. */
 export const FACEBOOK_MIN_AHEAD = 10 * MINUTE;
-/** How far ahead Facebook takes each kind of post, less an hour so a run at the edge isn't refused. */
-export const FACEBOOK_MAX_AHEAD = { link: 30 * DAY - 60 * MINUTE, reel: 29 * DAY - 60 * MINUTE };
+/** How far ahead each kind of post is scheduled: 27 days, measured, not the guide's 30 and 29 (above). */
+export const FACEBOOK_MAX_AHEAD = { link: 27 * DAY, reel: 27 * DAY };
 /** Instagram is posted at the time. Later than this, the post is reported as missed rather than posted. */
 export const INSTAGRAM_LATE_LIMIT = 60 * MINUTE;
 

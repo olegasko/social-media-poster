@@ -1,4 +1,4 @@
-# Schedules the queue's Facebook link posts whose 30-day window is open.
+# Schedules the queue's Facebook link posts whose 27-day window is open.
 # Run by hand from the Actions tab. "dry-run" (the default) only reads; only
 # "schedule" writes to the Page, at most max_posts posts a run.
 #

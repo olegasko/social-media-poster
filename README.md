@@ -15,7 +15,7 @@ All workflows are run by hand from the Actions tab. Only **Facebook link posts**
 | Drive check | The service account can read the video folder |
 | Queue check | The queue can be read, and which videos are in Drive |
 | **Dry run** | For every post: whether its window is open, whether its video suits the platforms, and what would be sent. **as_of** asks what it would do at another time |
-| **Facebook link posts** | Schedules link posts whose 30-day window is open, at most **max_posts** a run, each read back from Facebook. A post the Page already holds for that minute, or with that link, is skipped: **Facebook is the record** |
+| **Facebook link posts** | Schedules link posts whose 27-day window is open (Facebook refused 29 days 22.6 hours, though its guide says 30), at most **max_posts** a run, each read back from Facebook. A post the Page already holds for that minute, or with that link, is skipped: **Facebook is the record** |
 
 `npm test` runs the planner's tests locally; they need no secrets.
 

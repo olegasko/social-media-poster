@@ -24,16 +24,17 @@ const at = (iso: string) => new Date(iso);
 const run = (posts: Post[], files: DriveFile[], now: string) => plan({ timezone: 'Europe/London', posts }, files, at(now));
 const step = (posts: Post[], files: DriveFile[], now: string, what: string) => run(posts, files, now)[0]!.steps.find((s) => s.what === what)!;
 
-test('a link post is scheduled up to 30 days ahead, less the hour', () => {
-  const early = step([link], [], '2026-11-06T19:59:00Z', 'facebook link');
-  assert.equal(early.text, 'window opens Fri 6 Nov 2026, 20:00 UK');
+test('a link post is scheduled up to 27 days ahead: Facebook refused 29 days 22.6 hours', () => {
+  const early = step([link], [], '2026-11-09T18:59:00Z', 'facebook link');
+  assert.equal(early.text, 'window opens Mon 9 Nov 2026, 19:00 UK');
   assert.equal(early.problem, undefined);
-  assert.match(step([link], [], '2026-11-06T20:01:00Z', 'facebook link').text, /^would schedule a link post for Sun 6 Dec 2026, 19:00 UK/);
+  assert.match(step([link], [], '2026-11-09T19:00:00Z', 'facebook link').text, /^would schedule a link post for Sun 6 Dec 2026, 19:00 UK/);
+  assert.match(step([link], [], '2026-11-06T20:23:00Z', 'facebook link').text, /^window opens/);
 });
 
-test('a Reel waits for its 29-day window, then is scheduled', () => {
-  assert.equal(step([reel], [video], '2026-11-08T20:29:00Z', 'facebook reel').text, 'window opens Sun 8 Nov 2026, 20:30 UK');
-  assert.match(step([reel], [video], '2026-11-08T20:31:00Z', 'facebook reel').text, /^would upload the video and schedule the Reel/);
+test('a Reel waits for its 27-day window, then is scheduled', () => {
+  assert.equal(step([reel], [video], '2026-11-10T19:29:00Z', 'facebook reel').text, 'window opens Tue 10 Nov 2026, 19:30 UK');
+  assert.match(step([reel], [video], '2026-11-10T19:30:00Z', 'facebook reel').text, /^would upload the video and schedule the Reel/);
 });
 
 test('inside 10 minutes, or past, is too late for Facebook', () => {
