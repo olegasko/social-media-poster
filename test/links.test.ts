@@ -39,8 +39,8 @@ test('a different minute and link is not a match', () => {
   assert.equal(a!.kind, 'schedule');
 });
 
-test('waits for the 30-day window, and refuses once too late', () => {
-  const [wait] = run([link], [], new Date('2026-11-06T19:59:00Z'));
+test('waits for the 27-day window, and refuses once too late', () => {
+  const [wait] = run([link], [], new Date('2026-11-09T18:59:00Z'));
   assert.equal(wait!.kind, 'wait');
   const [late] = run([link], [], new Date('2026-12-06T18:51:00Z'));
   assert.equal(late!.kind, 'problem');
