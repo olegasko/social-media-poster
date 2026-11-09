@@ -15,6 +15,7 @@
     "queue:check": "node src/queue/check.ts",
     "dry-run": "node src/plan/dry-run.ts",
     "facebook:links": "node src/facebook/schedule-links.ts",
+    "facebook:reels": "node src/facebook/schedule-reels.ts",
     "test": "node --test 'test/*.test.ts'"
   },
   "dependencies": {

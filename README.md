@@ -2,11 +2,11 @@
 
 Posts scheduled content from a Markdown queue to **YouTube, Facebook, Instagram and LinkedIn** through each platform's API.
 
-**Status: Facebook link posts.** The poster schedules the queue's Facebook link posts; Reels and Instagram are a dry run so far. The plan and the platform research are tracked in a private repository.
+**Status: Facebook link posts and Reels.** The poster schedules the queue's Facebook link posts and Reels; Instagram is a dry run so far. The plan and the platform research are tracked in a private repository.
 
 ## Running it
 
-All workflows are run by hand from the Actions tab. Only **Facebook link posts**, with mode **schedule**, writes anything.
+All workflows are run by hand from the Actions tab. Only **Facebook link posts** and **Facebook Reels**, with mode **schedule**, write anything.
 
 | Workflow | What it proves |
 |---|---|
@@ -16,6 +16,7 @@ All workflows are run by hand from the Actions tab. Only **Facebook link posts**
 | Queue check | The queue can be read, and which videos are in Drive |
 | **Dry run** | For every post: whether its window is open, whether its video suits the platforms, and what would be sent. **as_of** asks what it would do at another time |
 | **Facebook link posts** | Schedules link posts whose 27-day window is open (Facebook refused 29 days 22.6 hours, though its guide says 30), at most **max_posts** a run, each read back from Facebook. A post the Page already holds for that minute, or with that link, is skipped: **Facebook is the record** |
+| **Facebook Reels** | Uploads each Reel whose 27-day window is open from the Drive folder and schedules it (Meta's start, upload and finish phases), at most **max_posts** a run, each read back as scheduled for its time. A Reel the Page already holds for that minute, or one scheduled or published with the same first line, is skipped. The run lists the times of every Reel the Page has scheduled, so it shows whether Reels scheduled by hand in the Planner are visible to it |
 
 `npm test` runs the planner's tests locally; they need no secrets.
 

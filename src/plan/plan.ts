@@ -76,7 +76,7 @@ function instagramStep(p: Post, when: Date, now: Date): Step & { now?: true } {
   return { what, text: `missed: due ${ukLabel(when)}, more than an hour ago, so not posted`, problem: true };
 }
 
-function videoProblems(file: DriveFile, instagram: boolean): string[] {
+export function videoProblems(file: DriveFile, instagram: boolean): string[] {
   const out: string[] = [];
   if (file.mimeType !== 'video/mp4') out.push(`is ${file.mimeType}, not MP4`);
   const size = Number(file.size ?? 0);

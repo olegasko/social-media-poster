@@ -1,0 +1,52 @@
+# Schedules the queue's Facebook Reels whose 27-day window is open: each video
+# is read from the Drive folder, uploaded to the Page and scheduled.
+# Run by hand from the Actions tab. "dry-run" (the default) only reads; only
+# "schedule" writes to the Page, at most max_posts Reels a run.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them. Actions are
+# pinned to commit SHAs, so a moved tag can't run new code with them. One run
+# at a time: two at once could each see a Reel as not yet scheduled.
+name: Facebook Reels
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run reads only; schedule writes to the Page'
+        type: choice
+        options: [dry-run, schedule]
+        default: dry-run
+      max_posts:
+        description: 'At most this many Reels scheduled in one run (1 to 10)'
+        required: false
+        default: '1'
+
+concurrency:
+  group: facebook-reels
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  reels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: npm test
+      - run: npm run facebook:reels
+        env:
+          # Passed through the environment, never into the script text.
+          MODE: ${{ inputs.mode }}
+          MAX_POSTS: ${{ inputs.max_posts }}
+          META_PAGE_ID: '1415216855004334'
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          GDRIVE_FOLDER_ID: 1euivocgVvZjFOm0IhxDpd1UwsDVaSwkO
+          GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
+          QUEUE_REPO_TOKEN: ${{ secrets.QUEUE_REPO_TOKEN }}
