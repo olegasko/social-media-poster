@@ -12,6 +12,7 @@ All workflows are run by hand from the Actions tab. Only **Facebook link posts**
 |---|---|
 | YouTube check | The refresh token belongs to the expected channel |
 | Meta check | The Page token reaches the expected page and Instagram account |
+| Scheduled check | Read-only: what each Page edge shows of scheduled and unpublished posts and videos (times and states, no captions), to find where Reels scheduled in the Planner are visible |
 | Drive check | The service account can read the video folder |
 | Queue check | The queue can be read, and which videos are in Drive |
 | **Dry run** | For every post: whether its window is open, whether its video suits the platforms, and what would be sent. **as_of** asks what it would do at another time |

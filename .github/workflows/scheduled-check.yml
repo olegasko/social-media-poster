@@ -1,0 +1,29 @@
+# Read-only: lists what each Page edge shows of scheduled and unpublished
+# posts and videos, times and states only, to find where the Graph API keeps
+# Reels scheduled by hand in Meta's Planner. Writes nothing.
+#
+# Secrets are only ever read by manually started runs on this repository:
+# no pull_request trigger, so no code from a fork runs with them. Actions are
+# pinned to commit SHAs, so a moved tag can't run new code with them.
+name: Scheduled check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: npm run scheduled:check
+        env:
+          META_PAGE_ID: '1415216855004334'
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
