@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { publishMs, reelActions, type PageReel } from '../src/facebook/reels.ts';
+import { publishMs, reelActions, scheduledVideos, videoAt, type PageReel, type ScheduledPost } from '../src/facebook/reels.ts';
 import type { DriveFile } from '../src/drive/files.ts';
 import type { Post } from '../src/queue/read.ts';
 
@@ -21,8 +21,13 @@ const scheduledAt = (id: string, seconds: number | string, description?: string)
   ...(description !== undefined && { description }),
   status: { publishing_phase: { publish_status: 'scheduled', publish_time: seconds } },
 });
-const run = (posts: Post[], reels: PageReel[], files: DriveFile[] = [video], now = open) =>
-  reelActions({ timezone: 'Europe/London', posts }, reels, files, now);
+const run = (posts: Post[], reels: PageReel[], files: DriveFile[] = [video], now = open, videos: { id: string; ms: number }[] = []) =>
+  reelActions({ timezone: 'Europe/London', posts }, reels, videos, files, now);
+const post = (id: string, seconds: number | string, media_type?: string, type?: string): ScheduledPost => ({
+  id,
+  scheduled_publish_time: seconds,
+  attachments: { data: [{ ...(media_type && { media_type }), ...(type && { type }) }] },
+});
 
 test('only Reels, and an open window schedules the caption with its video', () => {
   const [a, ...rest] = run([link, reel], []);
@@ -84,4 +89,31 @@ test('publish times in seconds, as numbers or strings; nothing else', () => {
   assert.equal(publishMs(scheduledAt('x', String(due))), due * 1000);
   assert.equal(publishMs({ id: 'x' }), null);
   assert.equal(publishMs(scheduledAt('x', 0)), null);
+});
+
+test('scheduled_posts: only videos count, with their times, and a link post is not a Reel', () => {
+  const got = scheduledVideos([
+    post('v1', due, 'video'),
+    post('v2', String(due + 7 * 86400), undefined, 'video_inline'),
+    post('l1', due - 1800, 'link'),
+    { id: 'n1', scheduled_publish_time: due },
+    post('v3', '', 'video'),
+  ]);
+  assert.deepEqual(got, [
+    { id: 'v1', ms: due * 1000 },
+    { id: 'v2', ms: (due + 7 * 86400) * 1000 },
+  ]);
+});
+
+test('a video on scheduled_posts at that minute is a Reel already held, as S6 was on 11 November 2026', () => {
+  const videos = scheduledVideos([post('p1', due + 30, 'video')]);
+  const [a] = run([reel], [], [], open, videos);
+  assert.deepEqual(a, { id: 'S6', when: new Date(due * 1000), kind: 'already', reelId: 'p1', why: 'scheduled video at the same time' });
+  assert.ok(videoAt(videos, due * 1000));
+});
+
+test('a video on scheduled_posts at another minute, or a link post at that minute, does not stop a Reel', () => {
+  assert.equal(run([reel], [], [video], open, scheduledVideos([post('p2', due + 60, 'video')]))[0]!.kind, 'schedule');
+  assert.equal(run([reel], [], [video], open, scheduledVideos([post('l2', due, 'link')]))[0]!.kind, 'schedule');
+  assert.equal(videoAt(scheduledVideos([post('p3', due + 60, 'video')]), due * 1000), false);
 });
