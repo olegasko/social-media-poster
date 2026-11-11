@@ -6,6 +6,13 @@
 // published Reel whose description starts with the same line: the first
 // covers a re-run of this job, the second a Reel somebody scheduled by hand
 // in the Planner at another time.
+//
+// A SCHEDULED REEL'S TIME IS ONLY ON scheduled_posts. Measured 11 November
+// 2026: S6 was scheduled through this job, and its Reel read back as
+// publish_status "scheduled" with no publish_time, absent from video_reels,
+// while /{page}/scheduled_posts held a video at exactly its minute. So a
+// video there at the same minute is a Reel already held, here and in the
+// read-back after a write.
 
 import type { Queue } from '../queue/read.ts';
 import type { DriveFile } from '../drive/files.ts';
@@ -23,9 +30,16 @@ export type PageReel = {
   };
 };
 
+/** An item on the Page's scheduled_posts edge, with fields=id,scheduled_publish_time,attachments{media_type,type}. */
+export type ScheduledPost = {
+  id: string;
+  scheduled_publish_time?: number | string;
+  attachments?: { data?: { media_type?: string; type?: string }[] };
+};
+
 export type ReelAction =
   | { id: string; when: Date; kind: 'schedule'; description: string; file: DriveFile }
-  | { id: string; when: Date; kind: 'already'; reelId: string; why: 'same time' | 'same first line' }
+  | { id: string; when: Date; kind: 'already'; reelId: string; why: 'same time' | 'same first line' | 'scheduled video at the same time' }
   | { id: string; when: Date; kind: 'wait'; opens: Date }
   | { id: string; kind: 'problem'; why: string };
 
@@ -39,9 +53,28 @@ export function publishMs(r: PageReel): number | null {
 
 export const publishStatus = (r: PageReel) => r.status?.publishing_phase?.publish_status;
 
+/** The scheduled posts that carry a video, with their times in ms; a link post is not a Reel. */
+export function scheduledVideos(posts: ScheduledPost[]): { id: string; ms: number }[] {
+  return posts.flatMap((p) => {
+    const kind = p.attachments?.data?.[0];
+    const isVideo = kind?.media_type === 'video' || /video/.test(kind?.type ?? '');
+    const seconds = Number(p.scheduled_publish_time);
+    return isVideo && Number.isFinite(seconds) && seconds > 0 ? [{ id: p.id, ms: seconds * 1000 }] : [];
+  });
+}
+
+/** True when a scheduled video sits within the same minute as `ms`. */
+export const videoAt = (videos: { ms: number }[], ms: number) => videos.some((v) => Math.abs(v.ms - ms) < 60_000);
+
 const firstLine = (text: string) => text.trim().split('\n')[0]!.trim();
 
-export function reelActions(queue: Queue, reels: PageReel[], files: DriveFile[], now: Date): ReelAction[] {
+export function reelActions(
+  queue: Queue,
+  reels: PageReel[],
+  videos: { id: string; ms: number }[],
+  files: DriveFile[],
+  now: Date,
+): ReelAction[] {
   const scheduled = reels.filter((r) => publishStatus(r) === 'scheduled');
   const live = reels.filter((r) => publishStatus(r) === 'scheduled' || publishStatus(r) === 'published');
   return queue.posts
@@ -57,6 +90,8 @@ export function reelActions(queue: Queue, reels: PageReel[], files: DriveFile[],
       if (!description.trim()) return { id: p.id, kind: 'problem', why: 'the Reel has no caption' };
       const sameTime = scheduled.find((r) => Math.abs((publishMs(r) ?? -Infinity) - when.getTime()) < 60_000);
       if (sameTime) return { id: p.id, when, kind: 'already', reelId: sameTime.id, why: 'same time' };
+      const sameVideo = videos.find((v) => Math.abs(v.ms - when.getTime()) < 60_000);
+      if (sameVideo) return { id: p.id, when, kind: 'already', reelId: sameVideo.id, why: 'scheduled video at the same time' };
       const line = firstLine(description);
       const sameLine = live.find((r) => r.description && firstLine(r.description) === line);
       if (sameLine) return { id: p.id, when, kind: 'already', reelId: sameLine.id, why: 'same first line' };
