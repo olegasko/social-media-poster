@@ -12,7 +12,11 @@
 // scheduled publish time is invalid", 6 November 2026), and 27 days 6 hours
 // ahead was accepted (9 November). So both windows open at 27 days, the
 // furthest seen to work, rather than at a limit that has been seen to fail.
-// - Instagram Reels: no API scheduling; 3 seconds to 15 minutes; at most
+// - Instagram Reels: no API scheduling FOR THIS APP. Measured 11 November
+//   2026 (run 43100446075 of a probe since removed): scheduled_publish_time
+//   on /{ig}/media is refused with "(#3) User must be on whitelist", while an
+//   unknown parameter is silently ignored, so the field exists for partners
+//   only. Publishing is immediate. 3 seconds to 15 minutes; at most
 //   1920 pixels wide; at most 300 MB; caption at most 2200 characters,
 //   30 hashtags and 20 @ tags. H.264 or HEVC, which Drive can't tell us.
 
